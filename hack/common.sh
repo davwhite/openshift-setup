@@ -6,7 +6,7 @@ COMMON_PUBLIC_KEYS=(
 	age1ky5amdnkwzj03gwal0cnk7ue7vsd0n64pxm50nxgycssp7vgpqvq9s7lyw # jharmison@redhat.com
 )
 
-for envfile in .env "${INSTALL_DIR}/.env"; do
+for envfile in .env "${INSTALL_DIR}.env"; do
 	if [ -f "$envfile" ]; then source "$envfile"; fi
 done
 
@@ -19,8 +19,10 @@ if ! command -v yq | grep -q '^/'; then
 	}
 fi
 
-function pull_secret_validate {
+function pull_secret_validate_and_clean {
 	[ -n "$PULL_SECRET" ] || return 1
+	PULL_SECRET="$(echo "$PULL_SECRET" | tr -d '[:space:]' | tr -d "'")"
+	export PULL_SECRET
 }
 
 function aws_validate {
@@ -136,6 +138,27 @@ function running_instance_ids {
 
 function stopped_instance_ids {
 	_state_instance_ids stopped
+}
+
+function read_secret {
+	local secret_answer
+	if echo "${*}" | grep -q ': $'; then
+		echo -n "${*}" >&2
+	elif echo "${*}" | grep -q ':$'; then
+		echo -n "${*} " >&2
+	else
+		echo -n "${*}: " >&2
+	fi
+	while IFS= read -rsn1 char; do
+		if [[ -z $char ]]; then
+			break
+		else
+			echo -n '*' >&2
+			secret_answer+="$char"
+		fi
+	done
+	echo >&2
+	echo "$secret_answer"
 }
 
 function ct_needs_update {

@@ -2,23 +2,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: config
+  name: authorino
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   destination:
     name: in-cluster
-    namespace: default
+    namespace: openshift-operators
   project: default
   source:
-    path: charts/config
-    repoURL: git@github.com:jharmison-redhat/openshift-setup.git
-    targetRevision: HEAD
+    path: charts/authorino
+    repoURL: ${ARGO_GIT_URL}
+    targetRevision: ${ARGO_GIT_REVISION}
     helm:
-      valueFiles:
-        - ../../clusters/hobbyist.rhoai.jharmison.dev/cluster.yaml
+      valueFiles: []
   syncPolicy:
     automated:
       prune: true

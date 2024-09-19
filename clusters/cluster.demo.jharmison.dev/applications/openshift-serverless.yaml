@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: openshift-serverless
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
@@ -10,17 +10,15 @@ metadata:
 spec:
   destination:
     name: in-cluster
-    namespace: cert-manager-operator
+    namespace: openshift-serverless
   project: default
   source:
-    path: charts/cert-manager
+    path: charts/openshift-serverless
     repoURL: git@github.com:jharmison-redhat/openshift-setup.git
     targetRevision: HEAD
     helm:
       valueFiles:
-        - ../../clusters/hobbyist.rhoai.jharmison.dev/cluster.yaml
-        - ../../clusters/hobbyist.rhoai.jharmison.dev/values/cert-manager/values.yaml
-        - secrets+age-import:///helm-secrets-private-keys/argo.txt?../../clusters/hobbyist.rhoai.jharmison.dev/values/cert-manager/secrets.enc.yaml
+        - ../../clusters/cluster.demo.jharmison.dev/cluster.yaml
   syncPolicy:
     automated:
       prune: true
